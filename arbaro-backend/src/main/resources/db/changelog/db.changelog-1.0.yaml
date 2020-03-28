@@ -1,6 +1,69 @@
 databaseChangeLog:
   - changeSet:
-      id: empty-example
+      id: 1
       author: Prominence
       changes:
-        - empty: {}
+        - createTable:
+            tableName: user
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: isActive
+                  type: boolean
+        - createTable:
+            tableName: role
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(32)
+                  constraints:
+                    nulalble: false
+                    unique: true
+        - createTable:
+            tableName: user2role
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_id
+                    references: user(id)
+              - column:
+                  name: role_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_role_id
+                    references: role(id)

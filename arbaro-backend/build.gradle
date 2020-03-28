@@ -3,6 +3,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'org.asciidoctor.convert' version '1.5.8'
 	id 'org.liquibase.gradle' version '2.0.2'
+	id 'nu.studer.jooq' version '4.1'
 	id 'java'
 }
 
@@ -50,6 +51,8 @@ dependencies {
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.restdocs:spring-restdocs-webtestclient'
 	testImplementation 'org.springframework.security:spring-security-test'
+
+	jooqRuntime 'org.postgresql:postgresql:42.2.11'
 }
 
 dependencyManagement {
@@ -67,3 +70,53 @@ asciidoctor {
 	inputs.dir snippetsDir
 	dependsOn test
 }
+
+//gradle generateMainJooqSchemaSource
+jooq {
+	version = '3.12.3'
+	edition = 'OSS'
+	generateSchemaSourceOnCompilation = true
+	main(sourceSets.main) {
+		jdbc {
+			driver = 'org.postgresql.Driver'
+			url = 'jdbc:postgresql://localhost:5432/arbaro'
+			user = 'arbaro'
+			password = 'arbaro'
+		}
+		generator {
+			name = 'org.jooq.codegen.DefaultGenerator'
+			strategy {
+				name = 'org.jooq.codegen.DefaultGeneratorStrategy'
+			}
+			database {
+				name = 'org.jooq.meta.postgres.PostgresDatabase'
+				inputSchema = 'public'
+				/*forcedTypes {
+					forcedType {
+						name = 'varchar'
+						expression = '.*'
+						types = 'JSONB?'
+					}
+					forcedType {
+						name = 'varchar'
+						expression = '.*'
+						types = 'INET'
+					}
+				}*/
+			}
+			generate {
+				relations = true
+				deprecated = false
+				records = true
+				immutablePojos = true
+				fluentSetters = true
+				// ...
+			}
+			target {
+				packageName = 'com.github.prominence.arbaro.db'
+				directory = 'src/main/java'
+			}
+		}
+	}
+}
+

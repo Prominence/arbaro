@@ -1,9 +1,9 @@
 package com.github.prominence.arbaro.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -11,21 +11,24 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Builder
+@AllArgsConstructor
 public class User implements UserDetails {
+
+    private Long id;
 
     private String email;
 
     private String password;
 
-    private boolean active = true;
+    private boolean isActive = true;
 
-    private Set<GrantedAuthority> roles = new HashSet<GrantedAuthority>();
+    private Set<Role> roles = new HashSet<>();
 
-    @Builder
     public User(String email, String password){
         this.email = email;
         this.password = password;
-        roles.add(new SimpleGrantedAuthority("ROLE_USER"));
+        roles.add(new Role("ROLE_USER"));
     }
 
     @Override
@@ -45,21 +48,21 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return active;
+        return isActive;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return active;
+        return isActive;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return active;
+        return isActive;
     }
 
     @Override
     public boolean isEnabled() {
-        return active;
+        return isActive;
     }
 }
