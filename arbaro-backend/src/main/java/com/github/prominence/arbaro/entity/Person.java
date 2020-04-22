@@ -3,9 +3,11 @@ package com.github.prominence.arbaro.entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,8 +15,12 @@ import java.util.Set;
 @Data
 @Builder
 @AllArgsConstructor
-public class User implements UserDetails {
+@NoArgsConstructor
+@Entity
+public class Person implements UserDetails {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String email;
@@ -23,9 +29,21 @@ public class User implements UserDetails {
 
     private boolean isActive = true;
 
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "person2role",
+            joinColumns = @JoinColumn(
+                    name = "person_id",
+                    referencedColumnName = "id"
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "role_id",
+                    referencedColumnName = "id"
+            )
+    )
     private Set<Role> roles = new HashSet<>();
 
-    public User(String email, String password){
+    public Person(String email, String password){
         this.email = email;
         this.password = password;
         roles.add(new Role("ROLE_USER"));

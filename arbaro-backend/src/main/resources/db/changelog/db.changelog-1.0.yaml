@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Prominence
       changes:
         - createTable:
-            tableName: user
+            tableName: person
             columns:
               - column:
                   name: id
@@ -21,11 +21,11 @@ databaseChangeLog:
                     unique: true
               - column:
                   name: password
-                  type: varchar(64)
+                  type: varchar(60)
                   constraints:
                     nullable: false
               - column:
-                  name: isActive
+                  name: is_active
                   type: boolean
         - createTable:
             tableName: role
@@ -38,13 +38,13 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: role
+                  name: name
                   type: varchar(32)
                   constraints:
                     nulalble: false
                     unique: true
         - createTable:
-            tableName: user2role
+            tableName: person2role
             columns:
               - column:
                   name: id
@@ -54,12 +54,12 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: user_id
+                  name: person_id
                   type: int
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_user_id
-                    references: user(id)
+                    foreignKeyName: fk_person_id
+                    references: person(id)
               - column:
                   name: role_id
                   type: int
@@ -67,3 +67,15 @@ databaseChangeLog:
                     nullable: false
                     foreignKeyName: fk_role_id
                     references: role(id)
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: name
+                  value: "ROLE_ADMIN"
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: name
+                  value: "ROLE_USER"

@@ -2,40 +2,46 @@ package com.github.prominence.arbaro.conf;
 
 import com.github.prominence.arbaro.repository.UserRepository;
 import com.github.prominence.arbaro.security.ArbaroUserDetailsService;
-import com.github.prominence.arbaro.security.PlainPasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.server.SecurityWebFilterChain;
 
-@EnableWebFluxSecurity
-@Configuration
-public class SecurityConfig {
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Bean
-    public SecurityWebFilterChain springSecurityWebFilterChain(ServerHttpSecurity http) {
-        http
-            .authorizeExchange()
-            .pathMatchers("/error").permitAll()
-            .anyExchange()
-            .authenticated()
-            .and()
-            .httpBasic()
-            .and()
-            .formLogin();
-        return http.build();
+    private final UserRepository userRepository;
+
+    @Autowired
+    public SecurityConfig(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    @Bean
-    public ReactiveUserDetailsService userDetailsService(UserRepository userRepository) {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests()
+                .antMatchers("/").hasRole("USER")
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()/*.loginPage("/login")*/.permitAll().defaultSuccessUrl("/", false)
+                .and()
+                .logout()
+                .permitAll();
+    }
+
+    @Override
+    public UserDetailsService userDetailsService() {
         return new ArbaroUserDetailsService(userRepository);
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new PlainPasswordEncoder();
+        return new BCryptPasswordEncoder();
     }
 }
